@@ -4,35 +4,15 @@ RSpec.describe DropletKit::ImageActionResource do
   subject(:resource) { described_class.new(connection: connection) }
   include_context 'resources'
 
-  def json
-    {
-      "action" => {
-        "id" => 23,
-        "status" => "in-progress",
-        "type" => action,
-        "started_at" => "2014-08-05T15:15:28Z",
-        "completed_at" => nil,
-        "resource_id" => 449676391,
-        "resource_type" => "image",
-        "region_slug" => "nyc1",
-        "region" => {
-          "name" => "New York",
-          "slug" => "nyc1",
-          "available" => true,
-          "sizes" => ["512mb"],
-          "features" => ["virtio", "private_networking", "backups", "ipv6", "metadata"]
-        }
-      }
-    }.to_json
-  end
-
   describe '#transfer' do
     let(:action) { 'transfer' }
 
     it 'sends a transfer request for an image' do
+      fixture = api_fixture('image_actions/transfer')
+
       request = stub_do_api('/v2/images/449676391/actions').with(
         body: { type: action, region: 'sfo1' }.to_json
-      ).to_return(body: json, status: 201)
+      ).to_return(body: fixture, status: 201)
 
       action = resource.transfer(image_id: 449676391, region: 'sfo1')
 
@@ -61,9 +41,11 @@ RSpec.describe DropletKit::ImageActionResource do
     let(:action) { 'convert' }
 
     it 'sends a convert request for an image' do
+      fixture = api_fixture('image_actions/convert')
+
       request = stub_do_api('/v2/images/449676391/actions').with(
         body: { type: action }.to_json
-      ).to_return(body: json, status: 201)
+      ).to_return(body: fixture, status: 201)
 
       action = resource.convert(image_id: 449676391)
 
